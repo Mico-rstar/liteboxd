@@ -49,8 +49,7 @@ export const sandboxApi = {
 
   delete: (id: string) => api.delete(`/sandboxes/${id}`),
 
-  exec: (id: string, data: ExecRequest) =>
-    api.post<ExecResponse>(`/sandboxes/${id}/exec`, data),
+  exec: (id: string, data: ExecRequest) => api.post<ExecResponse>(`/sandboxes/${id}/exec`, data),
 
   getLogs: (id: string) => api.get<LogsResponse>(`/sandboxes/${id}/logs`),
 

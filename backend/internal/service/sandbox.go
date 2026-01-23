@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/fslongjin/liteboxd/internal/k8s"
 	"github.com/fslongjin/liteboxd/internal/model"
+	"github.com/google/uuid"
 	corev1 "k8s.io/api/core/v1"
 )
 

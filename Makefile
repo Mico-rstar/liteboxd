@@ -1,4 +1,4 @@
-.PHONY: help run-backend run-frontend run-all stop-k3s start-k3s build-backend build-frontend clean
+.PHONY: help run-backend run-frontend run-all stop-k3s start-k3s build-backend build-frontend clean fmt
 
 help:
 	@echo "LiteBoxd Development Commands"
@@ -11,6 +11,7 @@ help:
 	@echo "  make build-backend  - Build backend binary"
 	@echo "  make build-frontend - Build frontend for production"
 	@echo "  make clean          - Clean build artifacts"
+	@echo "  make fmt            - Format backend and frontend code"
 
 # K3s management
 start-k3s:
@@ -46,3 +47,11 @@ build-frontend:
 clean:
 	rm -rf backend/bin
 	rm -rf web/dist
+
+# Format
+fmt:
+	@echo "Formatting backend..."
+	cd backend && go fmt ./...
+	@echo "Formatting frontend..."
+	cd web && npm run format
+	@echo "Done!"

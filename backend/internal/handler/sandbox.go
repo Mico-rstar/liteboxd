@@ -4,9 +4,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/fslongjin/liteboxd/internal/model"
 	"github.com/fslongjin/liteboxd/internal/service"
+	"github.com/gin-gonic/gin"
 )
 
 type SandboxHandler struct {

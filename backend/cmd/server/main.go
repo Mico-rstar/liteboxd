@@ -7,11 +7,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"github.com/fslongjin/liteboxd/internal/handler"
 	"github.com/fslongjin/liteboxd/internal/k8s"
 	"github.com/fslongjin/liteboxd/internal/service"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {

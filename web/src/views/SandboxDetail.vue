@@ -28,8 +28,12 @@
           <t-descriptions-item label="状态">
             <t-tag :theme="getStatusTheme(sandbox.status)">{{ sandbox.status }}</t-tag>
           </t-descriptions-item>
-          <t-descriptions-item label="创建时间">{{ formatTime(sandbox.created_at) }}</t-descriptions-item>
-          <t-descriptions-item label="过期时间">{{ formatTime(sandbox.expires_at) }}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{
+            formatTime(sandbox.created_at)
+          }}</t-descriptions-item>
+          <t-descriptions-item label="过期时间">{{
+            formatTime(sandbox.expires_at)
+          }}</t-descriptions-item>
         </t-descriptions>
       </t-loading>
     </t-card>
@@ -69,9 +73,7 @@
           />
         </t-input-adornment>
         <t-space>
-          <t-button theme="primary" :loading="executing" @click="executeCommand">
-            执行
-          </t-button>
+          <t-button theme="primary" :loading="executing" @click="executeCommand"> 执行 </t-button>
           <t-button variant="outline" @click="clearOutput">清空输出</t-button>
         </t-space>
       </t-space>
@@ -93,11 +95,7 @@
           <t-card title="上传文件" :bordered="true" size="small">
             <t-space direction="vertical" style="width: 100%">
               <t-input v-model="uploadPath" placeholder="目标路径，如：/workspace/main.py" />
-              <t-upload
-                v-model="uploadFiles"
-                :auto-upload="false"
-                :multiple="false"
-              />
+              <t-upload v-model="uploadFiles" :auto-upload="false" :multiple="false" />
               <t-button
                 theme="primary"
                 :loading="uploading"

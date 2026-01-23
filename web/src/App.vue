@@ -9,17 +9,14 @@
       <router-view />
     </t-content>
     <t-footer class="app-footer">
-      <a href="https://github.com/fslongjin/liteboxd" target="_blank" rel="noopener">
-        GitHub
-      </a>
+      <a href="https://github.com/fslongjin/liteboxd" target="_blank" rel="noopener"> GitHub </a>
       <span class="separator">|</span>
       <span>LiteBoxd &copy; 2025</span>
     </t-footer>
   </t-layout>
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <style>
 body {

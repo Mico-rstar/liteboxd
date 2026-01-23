@@ -2,18 +2,10 @@
   <div class="sandbox-list">
     <t-card title="Sandboxes" :bordered="false">
       <template #actions>
-        <t-button theme="primary" @click="showCreateDialog = true">
-          创建 Sandbox
-        </t-button>
+        <t-button theme="primary" @click="showCreateDialog = true"> 创建 Sandbox </t-button>
       </template>
 
-      <t-table
-        :data="sandboxes"
-        :columns="columns"
-        :loading="loading"
-        row-key="id"
-        hover
-      >
+      <t-table :data="sandboxes" :columns="columns" :loading="loading" row-key="id" hover>
         <template #id="{ row }">
           <t-link theme="primary" @click="goToDetail(row.id)">
             {{ row.id }}

@@ -21,10 +21,10 @@ import (
 )
 
 const (
-	SandboxNamespace   = "liteboxd"
-	LabelApp           = "liteboxd"
-	LabelSandboxID     = "sandbox-id"
-	AnnotationTTL      = "liteboxd/ttl"
+	SandboxNamespace    = "liteboxd"
+	LabelApp            = "liteboxd"
+	LabelSandboxID      = "sandbox-id"
+	AnnotationTTL       = "liteboxd/ttl"
 	AnnotationCreatedAt = "liteboxd/created-at"
 )
 
@@ -105,7 +105,7 @@ func (c *Client) CreatePod(ctx context.Context, opts CreatePodOptions) (*corev1.
 			Name:      podName,
 			Namespace: SandboxNamespace,
 			Labels: map[string]string{
-				"app":        LabelApp,
+				"app":          LabelApp,
 				LabelSandboxID: opts.ID,
 			},
 			Annotations: map[string]string{
