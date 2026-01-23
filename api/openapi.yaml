@@ -1,0 +1,462 @@
+openapi: 3.0.3
+info:
+  title: LiteBoxd API
+  description: A lightweight K8s sandbox system API for managing isolated container environments
+  version: 1.0.0
+  contact:
+    name: LiteBoxd
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+
+tags:
+  - name: sandboxes
+    description: Sandbox lifecycle management
+  - name: execution
+    description: Command execution in sandboxes
+  - name: files
+    description: File operations in sandboxes
+  - name: logs
+    description: Sandbox logs and events
+
+paths:
+  /sandboxes:
+    post:
+      tags:
+        - sandboxes
+      summary: Create a new sandbox
+      description: Creates a new sandbox with the specified configuration. The sandbox will be automatically deleted after the TTL expires.
+      operationId: createSandbox
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSandboxRequest'
+            example:
+              image: "python:3.11-slim"
+              cpu: "500m"
+              memory: "512Mi"
+              ttl: 3600
+              env:
+                MY_VAR: "value"
+      responses:
+        '201':
+          description: Sandbox created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sandbox'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - sandboxes
+      summary: List all sandboxes
+      description: Returns a list of all sandboxes in the system
+      operationId: listSandboxes
+      responses:
+        '200':
+          description: List of sandboxes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SandboxListResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sandboxes/{id}:
+    get:
+      tags:
+        - sandboxes
+      summary: Get sandbox details
+      description: Returns detailed information about a specific sandbox
+      operationId: getSandbox
+      parameters:
+        - $ref: '#/components/parameters/SandboxId'
+      responses:
+        '200':
+          description: Sandbox details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sandbox'
+        '404':
+          description: Sandbox not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - sandboxes
+      summary: Delete a sandbox
+      description: Deletes a sandbox and releases all associated resources
+      operationId: deleteSandbox
+      parameters:
+        - $ref: '#/components/parameters/SandboxId'
+      responses:
+        '204':
+          description: Sandbox deleted successfully
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sandboxes/{id}/exec:
+    post:
+      tags:
+        - execution
+      summary: Execute command in sandbox
+      description: Executes a command inside the sandbox container and returns the output synchronously
+      operationId: execCommand
+      parameters:
+        - $ref: '#/components/parameters/SandboxId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecRequest'
+            example:
+              command: ["python", "-c", "print('hello')"]
+              timeout: 30
+      responses:
+        '200':
+          description: Command executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sandboxes/{id}/logs:
+    get:
+      tags:
+        - logs
+      summary: Get sandbox logs
+      description: Returns container logs and Pod events for a sandbox
+      operationId: getSandboxLogs
+      parameters:
+        - $ref: '#/components/parameters/SandboxId'
+      responses:
+        '200':
+          description: Logs and events retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogsResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /sandboxes/{id}/files:
+    post:
+      tags:
+        - files
+      summary: Upload file to sandbox
+      description: Uploads a file to the specified path inside the sandbox container
+      operationId: uploadFile
+      parameters:
+        - $ref: '#/components/parameters/SandboxId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - path
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+                path:
+                  type: string
+                  description: Target path inside the container
+                  example: /workspace/main.py
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '400':
+          description: Missing file or path
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - files
+      summary: Download file from sandbox
+      description: Downloads a file from the specified path inside the sandbox container
+      operationId: downloadFile
+      parameters:
+        - $ref: '#/components/parameters/SandboxId'
+        - name: path
+          in: query
+          required: true
+          description: Path of the file to download inside the container
+          schema:
+            type: string
+          example: /workspace/output.txt
+      responses:
+        '200':
+          description: File content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Missing path parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  parameters:
+    SandboxId:
+      name: id
+      in: path
+      required: true
+      description: Unique identifier of the sandbox
+      schema:
+        type: string
+      example: "a1b2c3d4"
+
+  schemas:
+    Sandbox:
+      type: object
+      required:
+        - id
+        - image
+        - cpu
+        - memory
+        - ttl
+        - status
+        - created_at
+        - expires_at
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the sandbox
+          example: "a1b2c3d4"
+        image:
+          type: string
+          description: Container image used for the sandbox
+          example: "python:3.11-slim"
+        cpu:
+          type: string
+          description: CPU limit in Kubernetes format
+          example: "500m"
+        memory:
+          type: string
+          description: Memory limit in Kubernetes format
+          example: "512Mi"
+        ttl:
+          type: integer
+          description: Time to live in seconds
+          example: 3600
+        env:
+          type: object
+          additionalProperties:
+            type: string
+          description: Environment variables
+          example:
+            MY_VAR: "value"
+        status:
+          $ref: '#/components/schemas/SandboxStatus'
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp in RFC3339 format
+          example: "2024-01-23T15:30:00Z"
+        expires_at:
+          type: string
+          format: date-time
+          description: Expiration timestamp in RFC3339 format
+          example: "2024-01-23T16:30:00Z"
+
+    SandboxStatus:
+      type: string
+      enum:
+        - pending
+        - running
+        - succeeded
+        - failed
+        - unknown
+      description: Current status of the sandbox
+      example: "running"
+
+    CreateSandboxRequest:
+      type: object
+      required:
+        - image
+      properties:
+        image:
+          type: string
+          description: Container image to use for the sandbox
+          example: "python:3.11-slim"
+        cpu:
+          type: string
+          description: CPU limit in Kubernetes format (default "500m")
+          example: "500m"
+        memory:
+          type: string
+          description: Memory limit in Kubernetes format (default "512Mi")
+          example: "512Mi"
+        ttl:
+          type: integer
+          description: Time to live in seconds (default 3600)
+          minimum: 1
+          example: 3600
+        env:
+          type: object
+          additionalProperties:
+            type: string
+          description: Environment variables to set in the container
+          example:
+            MY_VAR: "value"
+
+    SandboxListResponse:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sandbox'
+          description: List of sandboxes
+
+    ExecRequest:
+      type: object
+      required:
+        - command
+      properties:
+        command:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Command to execute as an array of strings
+          example: ["python", "-c", "print('hello')"]
+        timeout:
+          type: integer
+          description: Execution timeout in seconds (default 30)
+          minimum: 1
+          example: 30
+
+    ExecResponse:
+      type: object
+      required:
+        - exit_code
+        - stdout
+        - stderr
+      properties:
+        exit_code:
+          type: integer
+          description: Exit code of the executed command
+          example: 0
+        stdout:
+          type: string
+          description: Standard output from the command
+          example: "hello\n"
+        stderr:
+          type: string
+          description: Standard error from the command
+          example: ""
+
+    LogsResponse:
+      type: object
+      required:
+        - logs
+        - events
+      properties:
+        logs:
+          type: string
+          description: Container logs (last 100 lines)
+          example: "Starting application...\nListening on port 8080\n"
+        events:
+          type: array
+          items:
+            type: string
+          description: Pod events in format "[Type] Reason: Message"
+          example:
+            - "[Normal] Scheduled: Successfully assigned liteboxd/sandbox-a1b2c3d4 to node1"
+            - "[Normal] Pulled: Container image \"python:3.11-slim\" already present on machine"
+
+    UploadResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: "file uploaded successfully"
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "sandbox not found"
