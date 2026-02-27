@@ -1,6 +1,6 @@
 module github.com/fslongjin/liteboxd/sdk/go
 
-go 1.23.4
+go 1.24.0
 
 require (
 	github.com/fslongjin/liteboxd/backend v0.0.0-20260226055749-26fdd9e22436
