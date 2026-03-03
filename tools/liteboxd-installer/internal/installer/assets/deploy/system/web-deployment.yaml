@@ -21,7 +21,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: web
-          image: liteboxd/web:latest
+          image: liteboxd/web:v0.5.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

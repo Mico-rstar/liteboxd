@@ -21,7 +21,7 @@ spec:
       serviceAccountName: liteboxd-gateway
       containers:
         - name: gateway
-          image: liteboxd/gateway:latest
+          image: liteboxd/gateway:v0.5.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081

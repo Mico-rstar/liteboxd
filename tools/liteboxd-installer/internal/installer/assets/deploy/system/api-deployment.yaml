@@ -21,7 +21,7 @@ spec:
       serviceAccountName: liteboxd-api
       containers:
         - name: api
-          image: liteboxd/server:latest
+          image: liteboxd/server:v0.5.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
